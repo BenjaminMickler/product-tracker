@@ -3,9 +3,7 @@ import datetime
 import sys
 import re
 
-serial = input('Model: ')
-if re.search(r'&\w+;', serial):
-    serial = re.sub(r'&\w+;', '', serial)
+serial = repr(input('Model: '))
 
 conn = sqlite3.connect('devices.db')
 c = conn.cursor()
