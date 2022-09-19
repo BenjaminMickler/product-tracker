@@ -8,7 +8,7 @@ serial = repr(input('Model: '))
 conn = sqlite3.connect('devices.db')
 c = conn.cursor()
 
-c.execute("CREATE TABLE IF NOT EXISTS devices (serial TEXT, date TEXT, product_name TEXT)")
+c.execute("CREATE TABLE IF NOT EXISTS devices (serial TEXT, date TEXT, product_name TEXT, manufacturer TEXT, manufacturer_price TEXT)")
 
 def input_details():
     price = input("Price: ")
@@ -22,7 +22,8 @@ def input_details():
     c.execute("SELECT serial FROM devices WHERE serial = ?", (serial,))
     if not c.fetchone():
         product_name = input("Product name: ")
-    c.execute("INSERT INTO devices VALUES (?, ?, ?)", (serial, date, product_name))
+        manufacturer = input("Manufacturer: ")
+    c.execute("INSERT INTO devices VALUES (?, ?, ?, ?)", (serial, date, product_name, manufacturer))
     conn.commit()
 
 while True:
@@ -35,6 +36,7 @@ while True:
         print("-------------------")
         print(f"Model: {data[0]}")
         print(f"Product name: {data[2]}")
+        print(f"Manufacturer: {data[3]}")
         print("----------\n| Stores |\n----------")
         data2.sort(key=lambda x: x[0])
         for row in data2:
@@ -42,7 +44,7 @@ while True:
             print(f"Price: A${row[0]}")
             print(f"Date: {datetime.datetime.strptime(row[1], '%Y-%m-%d %H:%M:%S.%f').strftime('%d/%m/%Y')}")
             print("----------")
-            options = input("Options: \n1. Add new store\n2. Delete store\n3. Exit\n4. Delete database\n> ")
+            options = input("Options: \n1. Add new store\n2. Delete store\n3. Exit\n4. Delete database\n5. Set manufacturer price\n> ")
             match options:
                 case "1":
                     input_details()
@@ -58,6 +60,8 @@ while True:
                     c.execute("DROP TABLE IF EXISTS {}".format(serial))
                     conn.commit()
                     sys.exit(0)
+                case "5":
+                    man_price = input("Manufacturer price: ")
                 case _:
                     print("Invalid option")
     else:
