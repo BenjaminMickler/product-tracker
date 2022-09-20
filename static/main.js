@@ -1,5 +1,25 @@
 let socket = new WebSocket("ws://producttracker.benmickler.com:8765/");
 
+// create event handler for buttons
+function createEventHandler() {
+    let buttons = document.querySelectorAll("button");
+    for (let i = 0; i < buttons.length; i++) {
+        buttons[i].addEventListener("click", function() {
+            let id = this.getAttribute("id");
+            if (id == "add") {
+                socket.send("add");
+            }
+            else if (id == "remove") {
+                // get currently selected product
+                let selected = document.querySelector("input[name='product']:checked");
+                if (selected != null) {
+                    socket.send("DELETE " + selected.value);
+                }
+            }
+        });
+    }
+}
+
 socket.onopen = function(e) {
     console.log("[open] Connection established");
     console.log("Sending request for all product data");
@@ -19,17 +39,24 @@ socket.onmessage = function(event) {
         header.appendChild(nameHeader);
         header.appendChild(priceHeader);
         table.appendChild(header);
+        // create selectable rows for each product
         for (let i = 0; i < products.length; i++) {
             let row = document.createElement("tr");
             let name = document.createElement("td");
             name.innerHTML = products[i].name;
             let price = document.createElement("td");
             price.innerHTML = products[i].price;
+            let radio = document.createElement("input");
+            radio.setAttribute("type", "radio");
+            radio.setAttribute("name", "product");
+            radio.setAttribute("value", products[i].name);
+            row.appendChild(radio);
             row.appendChild(name);
             row.appendChild(price);
             table.appendChild(row);
         }
-        document.body.appendChild(table);
+        document.querySelector("#products").appendChild(table);
+        createEventHandler();
     }
 };
 
